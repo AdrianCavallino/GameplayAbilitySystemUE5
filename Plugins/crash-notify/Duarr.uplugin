@@ -1,0 +1,26 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "oh-it-crashed",
+	"Description": "Play sound when editor crashed!",
+	"Category": "Other",
+	"CreatedBy": "rezonated",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.2.0",
+	"CanContainContent": false,
+	"Installed": true,
+	"SupportedTargetPlatforms": [
+		"Win64"
+	],
+	"Modules": [
+		{
+			"Name": "Duarr",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
