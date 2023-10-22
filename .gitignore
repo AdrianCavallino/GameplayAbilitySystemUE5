@@ -15,10 +15,4 @@ Plugins/*
 *.suo
 *.xcodeproj
 *.xcworkspace
-Intermediate/CachedAssetRegistry.bin
-Intermediate/CachedAssetRegistry.bin
-Saved/AutoScreenshot.png
-Saved/Config/WindowsEditor/EditorPerProjectUserSettings.ini
-Saved/Config/WindowsEditor/Engine.ini
-Saved/Config/WindowsEditor/Game.ini
-Saved/Logs/Aura.log
+
