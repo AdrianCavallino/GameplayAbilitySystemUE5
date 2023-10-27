@@ -46,10 +46,10 @@ void AAuraCharacter::InitAbilityActorInfo()
 		if(AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD()))
 		{
 			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
-			/*const FWidgetControllerParams WidgetControllerParams(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
-			AuraHUD->GetOverlayWidgetController(WidgetControllerParams)->BindCallbacksToDependencies();*/
 		}
 	}
+
+	InitializePrimaryAttributes();
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
