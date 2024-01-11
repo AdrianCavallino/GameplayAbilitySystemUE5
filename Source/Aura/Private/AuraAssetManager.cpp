@@ -3,7 +3,7 @@
 
 #include "AuraAssetManager.h"
 
-#include "FAuraGameplayTags.h"
+#include "..\Public\AuraGameplayTags.h"
 
 UAuraAssetManager& UAuraAssetManager::Get()
 {
