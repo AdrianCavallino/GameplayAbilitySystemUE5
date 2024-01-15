@@ -98,13 +98,20 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if(!CursorHit.bBlockingHit) return;
 
 	LastActor = ThisActor;
 	ThisActor = Cast<IEnemyInterface>(CursorHit.GetActor());
+
 	
+	if(LastActor != ThisActor)
+	{
+		if(LastActor) LastActor->UnHighlightActor();
+		if(ThisActor) ThisActor->HighlightActor();
+	}
+
+	///CLEAN THIS SHIT UP YOU DONKEY!!
 	/** LineTrace from Cursor, There's Some Scenario
 	 * A. LastActor is Null, ThisActor is Null
 	 *		- Do Nothing.
@@ -118,7 +125,7 @@ void AAuraPlayerController::CursorTrace()
 	 *		- Do Nothing
 	 */
 
-	if (LastActor == nullptr)
+	/*if (LastActor == nullptr)
 	{
 		if(ThisActor != nullptr)
 		{
@@ -150,7 +157,7 @@ void AAuraPlayerController::CursorTrace()
 				//Case E -> Do Nothing
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -169,19 +176,13 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		if(GetASC())
-		{
-			GetASC()->AbilityInputTagReleased(InputTag);
-		}
+		if(GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
 		return;
 	}
 	
 	if(bTargeting)
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagReleased(InputTag);
-		}
+		if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
 	}
 	else
 	{
@@ -194,7 +195,7 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				for (const FVector& Point : NavigationPath->PathPoints)
 				{
 					Spline->AddSplinePoint(Point, ESplineCoordinateSpace::World);
-					DrawDebugSphere(GetWorld(), Point, 8.f, 8, FColor::Green, false, 5.f);
+					//DrawDebugSphere(GetWorld(), Point, 8.f, 8, FColor::Green, false, 5.f);
 				}
 				CachedPosition = NavigationPath->PathPoints[NavigationPath->PathPoints.Num() - 1];
 				bAutoRunning = true;
@@ -209,30 +210,19 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		if(GetASC())
-		{
-			GetASC()->AbilityInputTagHeld(InputTag);
-		}
+		if(GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 		return;
 	}
 	
 	if(bTargeting)
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagHeld(InputTag);
-		}
+		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 	}
 	else
 	{
 		FollowDuration += GetWorld()->GetDeltaSeconds();
 
-		FHitResult Hit;
-		if(GetHitResultUnderCursor(ECC_Visibility, false, Hit))
-		{
-			CachedPosition = Hit.ImpactPoint;
-		}
-
+		if(CursorHit.bBlockingHit) CachedPosition = CursorHit.ImpactPoint;
 		if(APawn* ControlledPawn = GetPawn())
 		{
 			const FVector WorldDirection = (CachedPosition - ControlledPawn->GetActorLocation()).GetSafeNormal();

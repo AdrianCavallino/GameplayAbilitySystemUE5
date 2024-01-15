@@ -13,6 +13,9 @@ public:
 	FGameplayTag InputTag_2;
 	FGameplayTag InputTag_3;
 	FGameplayTag InputTag_4;
+
+
+	FGameplayTag Event_Montage_FireBolt;
 	
 private:
 	static FAuraGameplayTags GameplayTags;
