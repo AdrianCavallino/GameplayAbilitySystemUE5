@@ -14,14 +14,14 @@ UCLASS()
 class AURA_API UProjectileSpell : public UAuraGameplayAbilityBase
 {
 	GENERATED_BODY()
-
-protected:
 	
+protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	UFUNCTION()
 	void OnEventReceived(FGameplayEventData Payload);
-	
+
+	void OnValidData(const FVector& Vector);
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile();
 
@@ -33,4 +33,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AAuraProjectile> ProjectileClass;
+
+private:
+	FVector ValidTargetLocation;
 };

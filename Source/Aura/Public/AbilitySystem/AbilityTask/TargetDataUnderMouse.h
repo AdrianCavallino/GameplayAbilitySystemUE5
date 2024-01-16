@@ -6,7 +6,8 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "TargetDataUnderMouse.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FVector&, Data);
+class AAuraPlayerController;
+DECLARE_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FVector&);
 
 /**
  * 
@@ -20,9 +21,16 @@ public:
 	FMouseTargetDataSignature ValidData;
 	
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "TargetDataUnderMouse",  HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true"))
-	static UTargetDataUnderMouse* CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility);
+	static UTargetDataUnderMouse* CreateTargetDataUnderMouse(UGameplayAbility* OwningAbility, AAuraPlayerController* OwningController);
+
+	virtual void Activate() override;
 
 private:
-	virtual void Activate() override;
+	UPROPERTY()
+	TObjectPtr<AAuraPlayerController> CurrentController;
+
+
+	void SendMouseCursorData();
+	
 	
 };

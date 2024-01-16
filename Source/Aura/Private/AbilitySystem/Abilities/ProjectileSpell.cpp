@@ -5,8 +5,11 @@
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/AbilityTask/TargetDataUnderMouse.h"
 #include "Actor/AuraProjectile.h"
 #include "Interaction/CombatInterface.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Player/AuraPlayerController.h"
 
 //#include "Kismet/KismetSystemLibrary.h"
 
@@ -41,15 +44,32 @@ void UProjectileSpell::OnEventReceived(FGameplayEventData Payload)
 	UGameplayAbility::K2_EndAbility();
 }
 
+void UProjectileSpell::OnValidData(const FVector& Vector)
+{
+	DrawDebugSphere(GetWorld(), Vector, 8, 12, FColor::Green, true, 5.f);
+
+	ValidTargetLocation = Vector;
+}
+
 void UProjectileSpell::SpawnProjectile()
 {
 	if(ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SocketLocation = CombatInterface->GetSocketLocation();
 
+		APawn* OwningPawn = Cast<APawn>(GetAvatarActorFromActorInfo());
+		AAuraPlayerController* OwningController = Cast<AAuraPlayerController>(OwningPawn->GetController());
+		
+		UTargetDataUnderMouse* TargetDataUnderMouse = UTargetDataUnderMouse::CreateTargetDataUnderMouse(this, OwningController);
+
+		TargetDataUnderMouse->ValidData.AddUObject(this, &UProjectileSpell::OnValidData);
+
+		TargetDataUnderMouse->Activate();
+		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
 		//TODO: Set the Projectile Rotation
+		SpawnTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(SocketLocation, ValidTargetLocation).Quaternion());
 		
 		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass,
 			SpawnTransform,
