@@ -21,7 +21,8 @@ protected:
 	UFUNCTION()
 	void OnEventReceived(FGameplayEventData Payload);
 
-	void OnValidData(const FVector& Vector);
+	void OnValidData(const FGameplayAbilityTargetDataHandle& DataHandle);
+	
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile();
 

@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/ProjectileSpell.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AbilitySystem/AbilityTask/TargetDataUnderMouse.h"
@@ -23,13 +24,22 @@ void UProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	//UKismetSystemLibrary::PrintString(this, FString("Activate Ability (C++)"), true, true, FLinearColor::Yellow, 3);
 
 	/* Check for server Authority to spawn projectile (Only allow on server so the client only receive the replication) */
-	if(!HasAuthority(&ActivationInfo)) return;
+	//if(!HasAuthority(&ActivationInfo)) return;
 
 	UAbilityTask_PlayMontageAndWait* AbilityTask_PlayMontageAndWait = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, FName(), AnimMontage);
 	
 	UAbilityTask_WaitGameplayEvent* GameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, EventTag);
 
 	GameplayEvent->EventReceived.AddDynamic(this, &UProjectileSpell::OnEventReceived);
+
+	const APawn* OwningPawn = Cast<APawn>(GetAvatarActorFromActorInfo());
+	AAuraPlayerController* OwningController = Cast<AAuraPlayerController>(OwningPawn->GetController());
+		
+	UTargetDataUnderMouse* TargetDataUnderMouse = UTargetDataUnderMouse::CreateTargetDataUnderMouse(this, OwningController);
+
+	TargetDataUnderMouse->ValidData.AddUObject(this, &UProjectileSpell::OnValidData);
+
+	TargetDataUnderMouse->Activate();
 
 	AbilityTask_PlayMontageAndWait->Activate();
 	GameplayEvent->Activate();
@@ -39,32 +49,29 @@ void UProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UProjectileSpell::OnEventReceived(FGameplayEventData Payload)
 {
-	SpawnProjectile();
 	
 	UGameplayAbility::K2_EndAbility();
 }
 
-void UProjectileSpell::OnValidData(const FVector& Vector)
+void UProjectileSpell::OnValidData(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
-	DrawDebugSphere(GetWorld(), Vector, 8, 12, FColor::Green, true, 5.f);
+	FVector TargetLocation = UAbilitySystemBlueprintLibrary::GetTargetDataEndPointTransform(DataHandle, 0).GetLocation();
+	
+	DrawDebugSphere(GetWorld(), TargetLocation, 20, 12, FColor::Green, true, 5.f);
 
-	ValidTargetLocation = Vector;
+	ValidTargetLocation = TargetLocation;
+	
+	SpawnProjectile();
 }
 
 void UProjectileSpell::SpawnProjectile()
 {
+	if(!GetAvatarActorFromActorInfo()->HasAuthority()) return;
 	if(ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActorFromActorInfo()))
 	{
 		const FVector SocketLocation = CombatInterface->GetSocketLocation();
 
-		APawn* OwningPawn = Cast<APawn>(GetAvatarActorFromActorInfo());
-		AAuraPlayerController* OwningController = Cast<AAuraPlayerController>(OwningPawn->GetController());
 		
-		UTargetDataUnderMouse* TargetDataUnderMouse = UTargetDataUnderMouse::CreateTargetDataUnderMouse(this, OwningController);
-
-		TargetDataUnderMouse->ValidData.AddUObject(this, &UProjectileSpell::OnValidData);
-
-		TargetDataUnderMouse->Activate();
 		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);

@@ -27,7 +27,7 @@ public:
 	AAuraPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
 
-	FORCEINLINE FVector GetCursorHit() const { return CursorHit.Location; }
+	FORCEINLINE FVector GetCursorHitLocation() const { return CursorHit.Location; }
 	
 protected:
 	virtual void BeginPlay() override;
